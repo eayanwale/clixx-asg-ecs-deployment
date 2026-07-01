@@ -31,6 +31,7 @@ data "aws_instances" "asg_nodes" {
 data "aws_ami" "stack" {
   owners     = [var.ami_owner_account_id]
   name_regex = "^"
+  most_recent      = true
 
   filter {
     name   = "name"
