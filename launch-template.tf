@@ -73,7 +73,7 @@ resource "aws_launch_template" "tf-lt" {
   }
 
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     security_groups             = [aws_security_group.clixx-sg.id]
   }
 
