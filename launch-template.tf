@@ -5,66 +5,68 @@ resource "aws_launch_template" "tf-lt" {
   instance_type = "t2.micro"
   key_name      = "dev-servers"
 
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      delete_on_termination = true
-      encrypted             = false
-      iops                  = 3000
-      throughput            = 125
-      volume_type           = "gp3"
-      volume_size           = 8
-    }
-  }
+## Block devices
+  # block_device_mappings {
+  #   device_name = "/dev/xvda"
+  #   ebs {
+  #     delete_on_termination = true
+  #     encrypted             = false
+  #     iops                  = 3000
+  #     throughput            = 125
+  #     volume_type           = "gp3"
+  #     volume_size           = 8
+  #   }
+  # }
 
-  block_device_mappings {
-    device_name = "/dev/sdb"
-    ebs {
-      delete_on_termination = true
-      encrypted             = false
-      iops                  = 3000
-      throughput            = 125
-      volume_type           = "gp3"
-      volume_size           = 8
+  # block_device_mappings {
+  #   device_name = "/dev/sdb"
+  #   ebs {
+  #     delete_on_termination = true
+  #     encrypted             = false
+  #     iops                  = 3000
+  #     throughput            = 125
+  #     volume_type           = "gp3"
+  #     volume_size           = 8
 
-    }
-  }
+  #   }
+  # }
 
-  block_device_mappings {
-    device_name = "/dev/sdc"
-    ebs {
-      delete_on_termination = true
-      encrypted             = false
-      iops                  = 3000
-      throughput            = 125
-      volume_type           = "gp3"
-      volume_size           = 8
-    }
-  }
+  # block_device_mappings {
+  #   device_name = "/dev/sdc"
+  #   ebs {
+  #     delete_on_termination = true
+  #     encrypted             = false
+  #     iops                  = 3000
+  #     throughput            = 125
+  #     volume_type           = "gp3"
+  #     volume_size           = 8
+  #   }
+  # }
 
-  block_device_mappings {
-    device_name = "/dev/sdd"
-    ebs {
-      delete_on_termination = true
-      encrypted             = false
-      iops                  = 3000
-      throughput            = 125
-      volume_type           = "gp3"
-      volume_size           = 8
-    }
-  }
+  # block_device_mappings {
+  #   device_name = "/dev/sdd"
+  #   ebs {
+  #     delete_on_termination = true
+  #     encrypted             = false
+  #     iops                  = 3000
+  #     throughput            = 125
+  #     volume_type           = "gp3"
+  #     volume_size           = 8
+  #   }
+  # }
 
-  block_device_mappings {
-    device_name = "/dev/sde"
-    ebs {
-      delete_on_termination = true
-      encrypted             = false
-      iops                  = 3000
-      throughput            = 125
-      volume_type           = "gp3"
-      volume_size           = 8
-    }
-  }
+  # block_device_mappings {
+  #   device_name = "/dev/sde"
+  #   ebs {
+  #     delete_on_termination = true
+  #     encrypted             = false
+  #     iops                  = 3000
+  #     throughput            = 125
+  #     volume_type           = "gp3"
+  #     volume_size           = 8
+  #   }
+  # }
+#
 
   iam_instance_profile {
     arn = local.INSTANCE_ROLE
