@@ -29,6 +29,21 @@ pipeline {
             }
         }
 
+        stage('AI Source Code Audit') {
+            steps {
+                withCredentials([string(credentialsId: 'Claude_API', variable: 'ANTHROPIC_API_KEY')]) {
+                    aiAgent(
+                        agent: claudeCode(),
+                        model: 'claude-sonnet-5', 
+                        prompt: 'Scan the project files in the workspace, check for hardcoded secrets, and fix any minor syntax errors in all .tf files',
+                        yoloMode: true,
+                        requireApprovals: false,
+                        // apiCredentialsId: '${}'
+                    )
+                }
+            }
+        }
+
         stage('Terraform Init') {
             steps {
                 slackSend (
@@ -103,4 +118,9 @@ pipeline {
 def getTerraformPath() {
     def tfHome = tool name: 'terraform-1.10', type: 'terraform'
     return tfHome
+}
+
+def getNodeJsPath(){
+    def njshome= tool name: 'nodejs26', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+    return njshome
 }
