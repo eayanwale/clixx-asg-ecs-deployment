@@ -1,4 +1,5 @@
 def action
+def runner = "ENOCH"
 
 pipeline {
     agent any
@@ -75,9 +76,10 @@ status: success|blocked_secrets|partial
                     color: '#FFFF00', 
                     message: """
                     --${action}--
-        Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-        Build: (${env.BUILD_URL})
-                    """
+Runner: ${runner}
+Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+Build: (${env.BUILD_URL})
+"""
                 )
                 sh '''
                 cd stack-aut-Clixx
@@ -109,12 +111,13 @@ status: success|blocked_secrets|partial
                         color: '#36a64f', 
                         message: """
                     --DEPLOYMENT COMPLETE--
-                    Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]' 
-                    Build: (${env.BUILD_URL})
-                    
-                    Clixx URL: 
-                     ${clixxUrl}
-                    """
+Runner: ${runner}
+Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]' 
+Build: (${env.BUILD_URL})
+
+Clixx URL: 
+    ${clixxUrl}
+"""
                     )
                 }
             }
@@ -131,8 +134,9 @@ status: success|blocked_secrets|partial
                     color: '#FF0000', 
                     message: """
                 --CLIXX DESTROYED-- 
-                Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]' 
-                Build: (${env.BUILD_URL})
+Runner: ${runner}
+Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]' 
+Build: (${env.BUILD_URL})
                 """
                 )
             }
