@@ -60,7 +60,7 @@ secret_locations: [file:line, ...]   # only if secrets_found=true, redacted
 files_fixed: [...]
 files_unfixed: [...]   # validate failed, reverted
 status: success|blocked_secrets|partial
-'''
+''',
                         yoloMode: true,
                         requireApprovals: false,
                         // apiCredentialsId: '${}'
