@@ -63,7 +63,7 @@ files_unfixed: [...]   # validate failed, reverted
 status: success|blocked_secrets|partial
 ''',
                         yoloMode: true,
-                        requireApprovals: false,
+                        requireApprovals: false
                         // apiCredentialsId: '${}'
                     )
                 }
