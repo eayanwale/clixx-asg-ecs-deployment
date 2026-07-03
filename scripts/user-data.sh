@@ -272,6 +272,7 @@ fi
 # CREATE USERS
 default_users=(
     "mike user1@example.com --role=contributor"
+    "enoch user2@example.com --role=contributor"
     # "chichi user3@example.com --role=contributor"
     # "pete user4@example.com --role=contributor"
     # "boss user5@example.com --role=contributor"
@@ -284,7 +285,7 @@ for user in "${default_users[@]}"; do
         echo "[$(date '+%H:%M:%S')] User ${user_login} already exists, skipping user creation"
     else
         echo "[$(date '+%H:%M:%S')] Creating user ${user_login}"
-        wp user create "${user_login}" "${user_email}" --role=contributor --user_pass="Welcome1!" --send-email --allow-root
+        wp user create "${user_login}" "${user_email}" --role=contributor --send-email --allow-root
     fi
 done
 
