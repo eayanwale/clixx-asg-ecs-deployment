@@ -17,9 +17,6 @@ local_env
 # EFS CREATION AND MOUNTING
 echo "[$(date '+%H:%M:%S')] Creating and mounting EFS..."
 
-yum update -y
-yum install -y nfs-utils
-
 TOKEN=$(curl --request PUT "http://169.254.169.254/latest/api/token" --header "X-aws-ec2-metadata-token-ttl-seconds: 3600")
 REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region --header "X-aws-ec2-metadata-token: $TOKEN")
 EFS_MOUNT_POINT=/var/www/html
@@ -167,26 +164,9 @@ echo "[$(date '+%H:%M:%S')] EFS created and mounted on ${EFS_MOUNT_POINT} at ${f
 
 #################################################################################
 
-echo "[$(date '+%H:%M:%S')] Installing packages..."
-
-yum update -y
-amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2
-yum install -y httpd mariadb-server php-gd php-mbstring php-xml php-mysqlnd
-
 echo "[$(date '+%H:%M:%S')] All packages installed."
 
-systemctl start httpd
-systemctl enable httpd
-systemctl start php-fpm
-systemctl enable php-fpm
-
-usermod -a -G apache ec2-user
-chown -R ec2-user:apache /var/www
-chmod 2775 /var/www && find /var/www -type d -exec  chmod 2775 {} + || true
-find /var/www -type f -exec  chmod 0664 {} + || true
-
 if [[ -z $(ls -A ${EFS_MOUNT_POINT}) ]]; then
-    yum install -y git
 
     cd ${EFS_MOUNT_POINT} || exit
 
@@ -213,8 +193,6 @@ sed -i "s|define( *'DB_PASSWORD'.*|define( 'DB_PASSWORD', '${DB_PASS}' );|" "$CO
 sed -i "s|define( *'DB_HOST'.*|define( 'DB_HOST', '${DB_HOST}' );|"         "$CONFIG"
 
 grep -q "WP_AUTO_UPDATE_CORE" "$CONFIG" || sed -i "/^\/\* That's all, stop editing/i define( 'WP_AUTO_UPDATE_CORE', false );" "$CONFIG"
-
-sed -i '/<Directory "\/var\/www\/html">/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
 
 echo "[$(date '+%H:%M:%S')] All fields updated."
 
@@ -257,12 +235,6 @@ EOF
 fi
 echo "DNS info: ${SITE_ADDR}"
 
-chown -R apache /var/www
-chgrp -R apache /var/www
-chmod 2775 /var/www
-find /var/www -type d -exec  chmod 2775 {} + || true
-find /var/www -type f -exec  chmod 0664 {} + || true
-
 # Force users to login before seeing blog
 if ! wp plugin is-installed wp-force-login --allow-root; then
     echo "[$(date '+%H:%M:%S')] Installing wp-force-login plugin..."
@@ -293,7 +265,6 @@ echo "All current users:"
 wp user list --allow-root
 
 systemctl restart httpd
-systemctl enable httpd
 
 script_end=$(date '+%H:%M:%S')
 echo "=== Ending script at ${script_end} ==="

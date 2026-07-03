@@ -82,7 +82,6 @@ Build: (${env.BUILD_URL})
 """
                 )
                 sh '''
-                cd stack-aut-Clixx
                 terraform init -upgrade
                 '''
             }
@@ -91,7 +90,6 @@ Build: (${env.BUILD_URL})
         stage('Terraform Plan') {
             steps {
                 sh """
-                cd stack-aut-Clixx
                 terraform plan -out=tfplan -input=false ${params.ACTION == 'destroy' ? '-destroy' : ''}
                 """
             }
@@ -101,11 +99,10 @@ Build: (${env.BUILD_URL})
             when { expression { params.ACTION == 'apply' } }
             steps {
                 sh '''
-                cd stack-aut-Clixx
                 terraform apply -auto-approve tfplan
                 '''
                 script { 
-                    def clixxUrl = sh(script: 'cd stack-aut-Clixx && terraform output -raw clixx_url', returnStdout: true).trim()
+                    def clixxUrl = sh(script: 'terraform output -raw clixx_url', returnStdout: true).trim()
 
                     slackSend (
                         color: '#36a64f', 
@@ -127,7 +124,6 @@ Clixx URL:
             when { expression { params.ACTION == 'destroy' } }
             steps {
                 sh '''
-                cd stack-aut-Clixx
                 terraform destroy -auto-approve
                 '''
                 slackSend (
