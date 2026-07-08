@@ -29,8 +29,8 @@ data "aws_instances" "asg_nodes" {
 }
 
 data "aws_ami" "stack" {
-  owners     = [ var.ami_owner_account_id ]
-  most_recent      = true
+  owners      = [var.ami_owner_account_id]
+  most_recent = true
 
   filter {
     name   = "name"
