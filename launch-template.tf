@@ -5,7 +5,7 @@ resource "aws_launch_template" "tf-lt" {
   instance_type = "t2.micro"
   key_name      = "dev-servers"
 
-## Block devices
+  ## Block devices
   # block_device_mappings {
   #   device_name = "/dev/xvda"
   #   ebs {
@@ -66,7 +66,7 @@ resource "aws_launch_template" "tf-lt" {
   #     volume_size           = 8
   #   }
   # }
-#
+  #
 
   iam_instance_profile {
     arn = local.INSTANCE_ROLE
