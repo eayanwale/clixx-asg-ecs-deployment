@@ -198,17 +198,6 @@ echo "[$(date '+%H:%M:%S')] All fields updated."
 
 cd ${EFS_MOUNT_POINT} || exit
 
-# Install WP CLI
-if ! command -v wp >/dev/null 2>&1; then
-    echo "[$(date '+%H:%M:%S')] WP CLI not found. Installing..."
-
-    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
-else
-    echo "[$(date '+%H:%M:%S')] WP CLI already installed. Skipping..."
-fi
-
 if [[ -z "$SITE_ADDR" ]]; then
     PUB_DNS=$(aws ssm get-parameter --name '/stack/clixx/lb_dns' --query 'Parameter.Value' --output text)
     SITE_ADDR="http://${PUB_DNS}"
