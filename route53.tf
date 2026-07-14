@@ -1,17 +1,35 @@
-data "aws_route53_zone" "root-domain" {
-  provider = aws.domain_account
+# resource "aws_route53_record" "clixx-subdomain" {
+#   zone_id = data.aws_route53_zone.root-domain.zone_id
+#   name    = ""
+#   type    = "A"
 
-  name         = "example.com"
-  private_zone = false
+#   alias {
+#     name                   = aws_lb.ecs-lb.dns_name
+#     zone_id                = aws_lb.ecs-lb.zone_id
+#     evaluate_target_health = true
+#   }
+# }
+
+resource "aws_route53_record" "ecs-clixx-subdomain" {
+  zone_id = data.aws_route53_zone.root-domain.zone_id
+  name    = "ecs"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.ecs-lb.dns_name
+    zone_id                = aws_lb.ecs-lb.zone_id
+    evaluate_target_health = true
+  }
 }
 
-resource "aws_route53_record" "clixx-subdomain" {
-  provider = aws.domain_account
+resource "aws_route53_record" "asg-clixx-subdomain" {
+  zone_id = data.aws_route53_zone.root-domain.zone_id
+  name    = "asg"
+  type    = "A"
 
-  zone_id = data.aws_route53_zone.root-domain.id
-  name    = "clixx.example.com"
-  type    = "CNAME"
-  ttl     = "30"
-
-  records = [aws_lb.tf-lb.dns_name]
+  alias {
+    name                   = aws_lb.tf-lb.dns_name
+    zone_id                = aws_lb.tf-lb.zone_id
+    evaluate_target_health = true
+  }
 }
