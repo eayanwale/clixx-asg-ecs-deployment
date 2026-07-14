@@ -10,7 +10,8 @@ local_env () {
     DB_NAME="${database_name}"
     DB_USER="${database_user}"
     DB_PASS="${database_pass}"
-    SITE_ADDR="http://${lb_dns_name}"
+    # SITE_ADDR="http://${lb_dns_name}"
+    SITE_ADDR="https://asg.clixx.example.com"
 }
 local_env
 
@@ -187,6 +188,12 @@ echo "[$(date '+%H:%M:%S')] Updating wp-config and httpd conf..."
 
 CONFIG=${EFS_MOUNT_POINT}/wp-config.php
 
+sed -i "/^\/\* That's all, stop editing/i \\
+if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) \&\& \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {\\
+\$_SERVER['HTTPS'] = 'on';\\
+}\\
+" /var/www/html/wp-config.php
+
 sed -i "s|define( *'DB_NAME'.*|define( 'DB_NAME', '${DB_NAME}' );|"         "$CONFIG"
 sed -i "s|define( *'DB_USER'.*|define( 'DB_USER', '${DB_USER}' );|"         "$CONFIG"
 sed -i "s|define( *'DB_PASSWORD'.*|define( 'DB_PASSWORD', '${DB_PASS}' );|" "$CONFIG"
@@ -198,10 +205,10 @@ echo "[$(date '+%H:%M:%S')] All fields updated."
 
 cd ${EFS_MOUNT_POINT} || exit
 
-if [[ -z "$SITE_ADDR" ]]; then
-    PUB_DNS=$(aws ssm get-parameter --name '/stack/clixx/lb_dns' --query 'Parameter.Value' --output text)
-    SITE_ADDR="http://${PUB_DNS}"
-fi
+# if [[ -z "$SITE_ADDR" ]]; then
+#     PUB_DNS=$(aws ssm get-parameter --name '/stack/clixx/lb_dns' --query 'Parameter.Value' --output text)
+#     SITE_ADDR="http://${PUB_DNS}"
+# fi
 
 current_siteurl=$(wp option get siteurl --allow-root)
 current_home=$(wp option get home --allow-root)
@@ -226,29 +233,31 @@ echo "DNS info: ${SITE_ADDR}"
 
 # Force users to login before seeing blog
 if ! wp plugin is-installed wp-force-login --allow-root; then
-    echo "[$(date '+%H:%M:%S')] Installing wp-force-login plugin..."
-    wp plugin install wp-force-login --activate --allow-root --path=${EFS_MOUNT_POINT}
+    echo "[$(date '+%H:%M:%S')] Installing wp-force-login plugin from local AMI copy..."
+    unzip -o /opt/wp-force-login.zip -d ${EFS_MOUNT_POINT}/wp-content/plugins/
+    wp plugin activate wp-force-login --allow-root --path=${EFS_MOUNT_POINT}
 fi
 
 # CREATE USERS
-default_users=(
-    "mike user1@example.com --role=contributor"
-    "enoch user2@example.com --role=contributor"
-    # "chichi user3@example.com --role=contributor"
-    # "pete user4@example.com --role=contributor"
-    # "boss user5@example.com --role=contributor"
-)
+    # default_users=(
+    #     "mike user1@example.com --role=contributor"
+    #     "enoch user2@example.com --role=contributor"
+    #     # "chichi user3@example.com --role=contributor"
+    #     # "pete user4@example.com --role=contributor"
+    #     # "boss user5@example.com --role=contributor"
+    # )
 
-for user in "${default_users[@]}"; do
-    IFS=' ' read -r user_login user_email _ <<< "${user}"
+    # for user in "${default_users[@]}"; do
+    #     IFS=' ' read -r user_login user_email _ <<< "${user}"
 
-    if wp user get "${user_login}" --allow-root >/dev/null 2>&1; then
-        echo "[$(date '+%H:%M:%S')] User ${user_login} already exists, skipping user creation"
-    else
-        echo "[$(date '+%H:%M:%S')] Creating user ${user_login}"
-        wp user create "${user_login}" "${user_email}" --role=contributor --send-email --allow-root
-    fi
-done
+    #     if wp user get "${user_login}" --allow-root >/dev/null 2>&1; then
+    #         echo "[$(date '+%H:%M:%S')] User ${user_login} already exists, skipping user creation"
+    #     else
+    #         echo "[$(date '+%H:%M:%S')] Creating user ${user_login}"
+    #         wp user create "${user_login}" "${user_email}" --role=contributor --user_pass="Password123!" --allow-root
+    #     fi
+    # done
+##
 
 echo "All current users:"
 wp user list --allow-root
