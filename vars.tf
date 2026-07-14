@@ -21,3 +21,21 @@ variable "ami_owner_account_id" {
   type    = string
   default = "111111111111"
 }
+
+variable "ecr_image_tag" {
+  description = "Tag to deploy from clixx-repository"
+  type        = string
+  default     = "clixx-image-latest"
+}
+
+variable "ecs_instance_type" {
+  description = "EC2 instance type for ECS cluster"
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "key_name" {
+  description = "Key pair name for EC2 instances"
+  type        = string
+  default     = "dev-servers"
+}

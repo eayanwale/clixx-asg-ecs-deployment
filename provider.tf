@@ -16,11 +16,8 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "domain_account"
-  region = var.AWS_REGION
-  # profile = "stackprog-mgmt"
+  alias  = "ecs-repo-account"
+  region = "us-east-1"
 
-  assume_role {
-    role_arn = "arn:aws:iam::333333333333:role/Engineer"
-  }
+  profile = "stackprog-aut"
 }
