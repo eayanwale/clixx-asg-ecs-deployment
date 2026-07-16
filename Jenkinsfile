@@ -102,7 +102,7 @@ Build: (${env.BUILD_URL})
                 terraform apply -auto-approve tfplan
                 '''
                 script { 
-                    def clixxUrl = sh(script: 'terraform output -raw clixx_url', returnStdout: true).trim()
+                    // def clixxUrl = sh(script: 'terraform output -raw clixx_url', returnStdout: true).trim()
 
                     slackSend (
                         color: '#36a64f', 
