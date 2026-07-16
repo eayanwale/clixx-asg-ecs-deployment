@@ -1,5 +1,5 @@
 data "aws_db_snapshot" "latest_prod_snapshot" {
-  db_snapshot_identifier = "clixx-working-snapshot"
+  db_snapshot_identifier = "clixx-snapshot-has-user"
   most_recent            = true
 }
 
