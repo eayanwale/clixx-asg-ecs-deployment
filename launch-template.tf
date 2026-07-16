@@ -2,7 +2,7 @@ resource "aws_launch_template" "tf-lt" {
   name_prefix   = "tf-${local.RUNNER}-${local.ORGANIZATION}-lt"
   description   = "Terraform launch template for AL2 Clixx instance"
   image_id      = data.aws_ami.stack.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = "dev-servers"
 
   ## Block devices

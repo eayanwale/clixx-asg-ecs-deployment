@@ -19,7 +19,7 @@ resource "aws_efs_mount_target" "clixx-code-fs-mt" {
 
 resource "aws_instance" "bastion" {
   ami                         = "ami-0123456789abcdef0"
-  instance_type               = "t2.micro"
+  instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public-subnet-a.id
   vpc_security_group_ids      = [aws_security_group.bastion-sg.id]
   associate_public_ip_address = true
