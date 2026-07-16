@@ -3,6 +3,10 @@ data "aws_ssm_parameter" "db_password" {
   with_decryption = true
 }
 
+data "aws_ssm_parameter" "cw-config" {
+  name = "AmazonCloudWatch-linux"
+}
+
 data "aws_ssm_parameter" "organization" {
   name = "/stack/orgname"
 }

@@ -15,6 +15,33 @@ local_env () {
 }
 local_env
 
+if [ ! -f /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl ]; then
+    echo "[$(date '+%H:%M:%S')] CloudWatch agent not found, installing..."
+    yum install -y amazon-cloudwatch-agent
+fi
+
+view_log() {
+    tail -n 50 /opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log
+}
+
+# CLOUDWATCH CONFIG / SETUP
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config \
+    -m ec2 \
+    -c ssm:AmazonCloudWatch-linux \
+    -s
+
+systemctl enable amazon-cloudwatch-agent
+
+if systemctl is-active --quiet amazon-cloudwatch-agent; then
+    echo "[$(date '+%H:%M:%S')] CWAgent is running"
+elif view_log | grep "everything is ready"; then
+    echo "Everything is ready. CWAgent is running"
+else
+    echo "[$(date '+%H:%M:%S')] CWAgent failed to start"
+    view_log
+fi
+
 # EFS CREATION AND MOUNTING
 echo "[$(date '+%H:%M:%S')] Creating and mounting EFS..."
 
@@ -239,25 +266,37 @@ if ! wp plugin is-installed wp-force-login --allow-root; then
 fi
 
 # CREATE USERS
-    # default_users=(
-    #     "mike user1@example.com --role=contributor"
-    #     "enoch user2@example.com --role=contributor"
-    #     # "chichi user3@example.com --role=contributor"
-    #     # "pete user4@example.com --role=contributor"
-    #     # "boss user5@example.com --role=contributor"
-    # )
+default_users=(
+    "mike user1@example.com"
+    "enoch user2@example.com"
+    "chichi user3@example.com"
+    "pete user4@example.com"
+    "boss user5@example.com"
+)
 
-    # for user in "${default_users[@]}"; do
-    #     IFS=' ' read -r user_login user_email _ <<< "${user}"
+for user in "${default_users[@]}"; do
+    IFS=' ' read -r user_login user_email <<< "${user}"
 
-    #     if wp user get "${user_login}" --allow-root >/dev/null 2>&1; then
-    #         echo "[$(date '+%H:%M:%S')] User ${user_login} already exists, skipping user creation"
-    #     else
-    #         echo "[$(date '+%H:%M:%S')] Creating user ${user_login}"
-    #         wp user create "${user_login}" "${user_email}" --role=contributor --user_pass="Password123!" --allow-root
-    #     fi
-    # done
-##
+    PARAM_NAME="/stack/clixx/${user_login}_password" 
+
+    if wp user get "${user_login}" --allow-root >/dev/null 2>&1; then
+        echo "[$(date '+%H:%M:%S')] User ${user_login} already exists, skipping user creation"
+        NEW_PASS=$(wp user reset-password "$user_login" --porcelain --skip-email --allow-root)
+    else
+        echo "[$(date '+%H:%M:%S')] Creating user ${user_login}"
+        NEW_PASS=$(wp user create "${user_login}" "${user_email}" --role=contributor --porcelain --allow-root)
+    fi
+
+    aws ssm put-parameter \
+        --name "${PARAM_NAME}" \
+        --value "${NEW_PASS}" \
+        --overwrite \
+        --type "SecureString" \
+        --region "us-east-1"
+
+    echo "Password for $user_login successfully generated and saved to SSM at: $PARAM_NAME"
+done
+
 
 echo "All current users:"
 wp user list --allow-root

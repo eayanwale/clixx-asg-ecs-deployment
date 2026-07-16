@@ -3,9 +3,22 @@ variable "AWS_REGION" {
   default = "us-east-1"
 }
 
+variable "availability_zones" {
+  type    = set(string)
+  default = ["us-east-1a", "us-east-1b"]
+}
+
 variable "usage" {
   type    = string
   default = "clixx retail application"
+}
+
+variable "admin_emails" {
+  type = set(string)
+  default = [
+    "devops-alerts@example.com",
+    "user2@example.com"
+  ]
 }
 
 variable "ENVIRONMENT" {
@@ -15,6 +28,15 @@ variable "ENVIRONMENT" {
 
 variable "ManagedBy" {
   default = "terraform"
+}
+
+variable "ec2_role_policies" {
+  type = set(string)
+  default = [
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  ]
 }
 
 variable "ami_owner_account_id" {
