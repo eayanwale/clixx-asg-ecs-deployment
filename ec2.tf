@@ -35,6 +35,7 @@ resource "aws_lb_target_group" "tf-tg" {
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
+  deregistration_delay = 30
 
   health_check {
     enabled             = true
@@ -59,6 +60,7 @@ resource "aws_lb_target_group" "ecs-tg" {
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = aws_vpc.main.id
+  deregistration_delay = 30
 
   health_check {
     enabled  = true
@@ -171,7 +173,7 @@ resource "aws_autoscaling_group" "tf-asg" {
   max_size                  = 2
   min_size                  = 1
   health_check_type         = "ELB"
-  health_check_grace_period = 700
+  health_check_grace_period = 200
   desired_capacity          = 1
   force_delete              = true
   vpc_zone_identifier       = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
@@ -181,7 +183,7 @@ resource "aws_autoscaling_group" "tf-asg" {
     strategy = "Rolling"
     preferences {
       auto_rollback          = true
-      instance_warmup        = 700
+      instance_warmup        = 120
       min_healthy_percentage = 50
     }
   }
@@ -206,6 +208,9 @@ resource "aws_autoscaling_group" "ecs-asg" {
   min_size            = 1
   max_size            = 2
   desired_capacity    = 1
+  force_delete        = true
+  protect_from_scale_in  = false
+  health_check_grace_period = 120
 
   launch_template {
     id      = aws_launch_template.clixx-ecs-lt.id

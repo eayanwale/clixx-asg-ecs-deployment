@@ -123,7 +123,12 @@ Clixx URL:
             when { expression { params.ACTION == 'destroy' } }
             steps {
                 sh '''
-                terraform destroy -auto-approve
+                    terraform destroy -auto-approve \
+                    -target=aws_ecs_service.clixx \
+                    -target=aws_ecs_cluster_capacity_providers.clixx-ccp \
+                    -target=aws_ecs_capacity_provider.clixx-cp
+
+                    terraform destroy -auto-approve
                 '''
                 slackSend (
                     color: 'good', 
