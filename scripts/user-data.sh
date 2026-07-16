@@ -194,13 +194,16 @@ echo "[$(date '+%H:%M:%S')] EFS created and mounted on ${EFS_MOUNT_POINT} at ${f
 
 echo "[$(date '+%H:%M:%S')] All packages installed."
 
-if [[ -z $(ls -A ${EFS_MOUNT_POINT}) ]]; then
+if [[ ! -f ${EFS_MOUNT_POINT}/wp-load.php ]]; then
+    echo "[$(date '+%H:%M:%S')] No valid WordPress installation found in ${EFS_MOUNT_POINT}, wiping and redeploying..."
+
+    find ${EFS_MOUNT_POINT} -mindepth 1 -delete
 
     cd ${EFS_MOUNT_POINT} || exit
 
     git clone --branch latest ${GIT_REPO}
     cp -r CliXX_Retail_Repository/* ${EFS_MOUNT_POINT}/
-    rm -rf ${EFS_MOUNT_POINT}/CliXX_Retail_Repository   
+    rm -rf ${EFS_MOUNT_POINT}/CliXX_Retail_Repository
 else
     echo "[$(date '+%H:%M:%S')] WordPress files already exist in ${EFS_MOUNT_POINT}, skipping..."
 fi

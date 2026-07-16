@@ -173,7 +173,7 @@ resource "aws_autoscaling_group" "tf-asg" {
   max_size                  = 2
   min_size                  = 1
   health_check_type         = "ELB"
-  health_check_grace_period = 200
+  health_check_grace_period = 700
   desired_capacity          = 1
   force_delete              = true
   vpc_zone_identifier       = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
