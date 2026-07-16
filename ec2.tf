@@ -31,10 +31,10 @@ resource "aws_instance" "bastion" {
 }
 
 resource "aws_lb_target_group" "tf-tg" {
-  name     = "tf-${local.RUNNER}-${local.ORGANIZATION}-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name                 = "tf-${local.RUNNER}-${local.ORGANIZATION}-tg"
+  port                 = 80
+  protocol             = "HTTP"
+  vpc_id               = aws_vpc.main.id
   deregistration_delay = 30
 
   health_check {
@@ -55,11 +55,11 @@ resource "aws_lb_target_group" "tf-tg" {
 }
 
 resource "aws_lb_target_group" "ecs-tg" {
-  name        = "tf-${local.RUNNER}-container-TG"
-  port        = 80
-  protocol    = "HTTP"
-  target_type = "instance"
-  vpc_id      = aws_vpc.main.id
+  name                 = "tf-${local.RUNNER}-container-TG"
+  port                 = 80
+  protocol             = "HTTP"
+  target_type          = "instance"
+  vpc_id               = aws_vpc.main.id
   deregistration_delay = 30
 
   health_check {
@@ -203,13 +203,13 @@ resource "aws_autoscaling_group" "tf-asg" {
 resource "aws_autoscaling_group" "ecs-asg" {
   depends_on = [aws_db_instance.clixx-ecs-db]
 
-  name                = "tf-${local.RUNNER}-${local.ORGANIZATION}-ecs-asg"
-  vpc_zone_identifier = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-  min_size            = 1
-  max_size            = 2
-  desired_capacity    = 1
-  force_delete        = true
-  protect_from_scale_in  = false
+  name                      = "tf-${local.RUNNER}-${local.ORGANIZATION}-ecs-asg"
+  vpc_zone_identifier       = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
+  min_size                  = 1
+  max_size                  = 2
+  desired_capacity          = 1
+  force_delete              = true
+  protect_from_scale_in     = false
   health_check_grace_period = 120
 
   launch_template {
