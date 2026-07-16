@@ -57,19 +57,32 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-resource "aws_eip" "nat_eip" {
+resource "aws_eip" "nat_eipa" {
   domain = "vpc"
 
   tags = {
-    Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-eip"
+    Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-eip-a"
+  }
+}
+
+resource "aws_eip" "nat_eipb" {
+  domain = "vpc"
+
+  tags = {
+    Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-eip-b"
   }
 }
 
 resource "aws_nat_gateway" "nat-gtwy" {
   depends_on = [aws_internet_gateway.igw]
 
-  allocation_id = aws_eip.nat_eip.id
-  subnet_id     = aws_subnet.public-subnet-a.id
+  for_each = {
+    "a" = aws_subnet.public-subnet-a
+    "b" = aws_subnet.public-subnet-b
+  }
+
+  allocation_id = each.key == "a" ? aws_eip.nat_eipa.id : aws_eip.nat_eipb.id
+  subnet_id     = each.value.id
 
   tags = {
     Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-nat"
@@ -92,9 +105,14 @@ resource "aws_route_table" "public-rt" {
 resource "aws_route_table" "private-rt" {
   vpc_id = aws_vpc.main.id
 
+  for_each = {
+    "a" = aws_subnet.public-subnet-a
+    "b" = aws_subnet.public-subnet-b
+  }
+
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat-gtwy.id
+    nat_gateway_id = aws_nat_gateway.nat-gtwy[each.key].id
   }
 
   tags = {
@@ -112,14 +130,14 @@ resource "aws_route_table_association" "public-b" {
   route_table_id = aws_route_table.public-rt.id
 }
 
-resource "aws_route_table_association" "private-a" {
-  subnet_id      = aws_subnet.private-subnet-a.id
-  route_table_id = aws_route_table.private-rt.id
-}
+resource "aws_route_table_association" "private" {
+  for_each = {
+    "a" = aws_subnet.private-subnet-a
+    "b" = aws_subnet.private-subnet-b
+  }
 
-resource "aws_route_table_association" "private-b" {
-  subnet_id      = aws_subnet.private-subnet-b.id
-  route_table_id = aws_route_table.private-rt.id
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.private-rt[each.key].id
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -127,7 +145,8 @@ resource "aws_vpc_endpoint" "s3" {
   service_name      = "com.amazonaws.us-east-1.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids = [
-    aws_route_table.private-rt.id,
+    aws_route_table.private-rt["a"].id,
+    aws_route_table.private-rt["b"].id,
     aws_route_table.public-rt.id
   ]
 }
