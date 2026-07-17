@@ -11,6 +11,7 @@ pipeline {
     environment {
         PATH = "${getTerraformPath()}:${PATH}"
         VERSION = "1.0.${BUILD_NUMBER}"
+        SNS_SECURITY_TOPIC_ARN = 'arn:aws:sns:us-east-1:111111111111:Secrets_Found_Pipelines'
     }
 
     stages {
