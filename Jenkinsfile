@@ -103,7 +103,6 @@ Build: (${env.BUILD_URL})
                 '''
                 script {
                     def clixxAsgUrl = sh(script: 'terraform output -raw clixx_asg_url', returnStdout: true).trim()
-                    def clixxEcsUrl = sh(script: 'terraform output -raw clixx_ecs_url', returnStdout: true).trim()
 
                     slackSend (
                         color: '#36a64f',
@@ -114,8 +113,6 @@ Job: '${env.JOB_BASE_NAME} [${env.BUILD_NUMBER}]'
 
 Clixx ASG URL:
     ${clixxAsgUrl}
-Clixx ECS URL:
-    ${clixxEcsUrl}
 """
                     )
                 }
@@ -126,12 +123,7 @@ Clixx ECS URL:
             when { expression { params.ACTION == 'destroy' } }
             steps {
                 sh '''
-                    terraform destroy -auto-approve \
-                    -target=aws_ecs_service.clixx \
-                    -target=aws_ecs_cluster_capacity_providers.clixx-ccp \
-                    -target=aws_ecs_capacity_provider.clixx-cp
-
-                    terraform destroy -auto-approve
+                terraform destroy -auto-approve
                 '''
                 slackSend (
                     color: 'good', 
