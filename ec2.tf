@@ -54,40 +54,11 @@ resource "aws_lb_target_group" "tf-tg" {
   }
 }
 
-resource "aws_lb_target_group" "ecs-tg" {
-  name                 = "tf-${local.RUNNER}-container-TG"
-  port                 = 80
-  protocol             = "HTTP"
-  target_type          = "instance"
-  vpc_id               = aws_vpc.main.id
-  deregistration_delay = 30
-
-  health_check {
-    enabled  = true
-    path     = "/"
-    port     = "traffic-port"
-    protocol = "HTTP"
-    matcher  = "200,301,302"
-  }
-}
-
 resource "aws_lb" "tf-lb" {
   name               = "tf-${local.RUNNER}-${local.ORGANIZATION}-lb"
   internal           = false
   load_balancer_type = "application"
   ip_address_type    = "ipv4"
-  security_groups    = [aws_security_group.alb-sg.id]
-  subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
-
-  tags = {
-    Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-lb"
-  }
-}
-
-resource "aws_lb" "ecs-lb" {
-  name               = "tf-${local.RUNNER}-${local.ORGANIZATION}-ecs-lb"
-  internal           = false
-  load_balancer_type = "application"
   security_groups    = [aws_security_group.alb-sg.id]
   subnets            = [aws_subnet.public-subnet-a.id, aws_subnet.public-subnet-b.id]
 
@@ -133,39 +104,6 @@ resource "aws_lb_listener" "tf-lb-lsnr-https" {
   }
 }
 
-resource "aws_lb_listener" "ecs-lsnr" {
-  load_balancer_arn = aws_lb.ecs-lb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-
-  tags = {
-    Name = "tf-${local.RUNNER}-${local.ORGANIZATION}-lb-listener"
-  }
-}
-
-resource "aws_lb_listener" "ecs-lsnr-https" {
-  load_balancer_arn = aws_lb.ecs-lb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = "arn:aws:acm:us-east-1:222222222222:certificate/00000000-0000-0000-0000-000000000000"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs-tg.arn
-  }
-}
-
 resource "aws_autoscaling_group" "tf-asg" {
   depends_on = [aws_db_instance.clixx]
 
@@ -196,30 +134,6 @@ resource "aws_autoscaling_group" "tf-asg" {
   tag {
     key                 = "Name"
     value               = "tf-${local.RUNNER}-${local.ORGANIZATION}-instance"
-    propagate_at_launch = true
-  }
-}
-
-resource "aws_autoscaling_group" "ecs-asg" {
-  depends_on = [aws_db_instance.clixx-ecs-db]
-
-  name                      = "tf-${local.RUNNER}-${local.ORGANIZATION}-ecs-asg"
-  vpc_zone_identifier       = [aws_subnet.private-subnet-a.id, aws_subnet.private-subnet-b.id]
-  min_size                  = 1
-  max_size                  = 2
-  desired_capacity          = 1
-  force_delete              = true
-  protect_from_scale_in     = false
-  health_check_grace_period = 120
-
-  launch_template {
-    id      = aws_launch_template.clixx-ecs-lt.id
-    version = "$Latest"
-  }
-
-  tag {
-    key                 = "AmazonECSManaged"
-    value               = true
     propagate_at_launch = true
   }
 }

@@ -14,10 +14,3 @@ provider "aws" {
     }
   }
 }
-
-provider "aws" {
-  alias  = "ecs-repo-account"
-  region = "us-east-1"
-
-  # profile = "stackprog-aut"
-}

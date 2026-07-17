@@ -31,14 +31,6 @@ resource "aws_vpc_security_group_ingress_rule" "allow-http" {
   to_port                      = 80
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow-ecs-dynamic-ports" {
-  security_group_id            = aws_security_group.clixx-sg.id
-  referenced_security_group_id = aws_security_group.alb-sg.id
-  from_port                    = 32768
-  ip_protocol                  = "tcp"
-  to_port                      = 65535
-}
-
 resource "aws_security_group" "alb-sg" {
   vpc_id = aws_vpc.main.id
   name   = "${local.ORGANIZATION}-alb-sg"

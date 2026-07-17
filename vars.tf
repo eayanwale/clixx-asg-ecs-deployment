@@ -30,30 +30,9 @@ variable "ManagedBy" {
   default = "terraform"
 }
 
-variable "ec2_role_policies" {
-  type = set(string)
-  default = [
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  ]
-}
-
 variable "ami_owner_account_id" {
   type    = string
   default = "111111111111"
-}
-
-variable "ecr_image_tag" {
-  description = "Tag to deploy from clixx-repository"
-  type        = string
-  default     = "clixx-image-latest"
-}
-
-variable "ecs_instance_type" {
-  description = "EC2 instance type for ECS cluster"
-  type        = string
-  default     = "t3.medium"
 }
 
 variable "key_name" {

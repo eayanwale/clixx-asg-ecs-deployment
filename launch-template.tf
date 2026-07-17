@@ -96,30 +96,3 @@ resource "aws_launch_template" "tf-lt" {
     name = "tf-${local.RUNNER}-${local.ORGANIZATION}-instance"
   }
 }
-
-resource "aws_launch_template" "clixx-ecs-lt" {
-  name_prefix   = "tf-${local.RUNNER}-${local.ORGANIZATION}-ecs-lt"
-  image_id      = data.aws_ami.ecs-stack-ami.id
-  instance_type = var.ecs_instance_type
-  key_name      = var.key_name
-
-  network_interfaces {
-    associate_public_ip_address = false
-    security_groups             = [aws_security_group.clixx-sg.id]
-  }
-
-  iam_instance_profile {
-    name = aws_iam_instance_profile.ecs_instance_profile.name
-  }
-
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    echo ECS_CLUSTER=${aws_ecs_cluster.clixx-cluster.name} >> /etc/ecs/ecs.config
-  EOF
-  )
-
-  tag_specifications {
-    resource_type = "instance"
-    tags          = { Name = "ECS Instance - CLIXX-Cluster" }
-  }
-}

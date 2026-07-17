@@ -32,15 +32,6 @@ data "aws_instances" "asg_nodes" {
   }
 }
 
-data "aws_instances" "ecs_nodes" {
-  instance_state_names = ["running"]
-
-  filter {
-    name   = "tag:aws:autoscaling:groupName"
-    values = [aws_autoscaling_group.ecs-asg.name]
-  }
-}
-
 data "aws_ami" "stack" {
   owners      = [var.ami_owner_account_id]
   most_recent = true
@@ -48,22 +39,6 @@ data "aws_ami" "stack" {
   filter {
     name   = "name"
     values = ["ami-stack-*"]
-  }
-}
-
-data "aws_ecr_repository" "clixx-repository" {
-  provider = aws.ecs-repo-account
-  name     = "clixx-repository"
-  region   = var.AWS_REGION
-}
-
-data "aws_ami" "ecs-stack-ami" {
-  owners      = [var.ami_owner_account_id]
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ami-ecs-stack-*"]
   }
 }
 

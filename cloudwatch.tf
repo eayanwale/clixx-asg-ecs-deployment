@@ -1,6 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   for_each = {
-    "ecs" = aws_autoscaling_group.ecs-asg.name
     "asg" = aws_autoscaling_group.tf-asg.name
   }
 
@@ -24,7 +23,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
 
 resource "aws_cloudwatch_metric_alarm" "mem_usage" {
   for_each = {
-    "ecs" = aws_autoscaling_group.ecs-asg.name
     "asg" = aws_autoscaling_group.tf-asg.name
   }
 
@@ -52,7 +50,6 @@ resource "aws_cloudwatch_metric_alarm" "mem_usage" {
 
 resource "aws_cloudwatch_metric_alarm" "disk_usage" {
   for_each = {
-    "ecs" = aws_autoscaling_group.ecs-asg.name
     "asg" = aws_autoscaling_group.tf-asg.name
   }
 
@@ -87,7 +84,6 @@ resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = "clixx-${each.key}-dashboard"
 
   for_each = {
-    "ecs" = aws_autoscaling_group.ecs-asg.name
     "asg" = aws_autoscaling_group.tf-asg.name
   }
 
