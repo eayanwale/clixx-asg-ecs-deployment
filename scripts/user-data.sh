@@ -270,11 +270,11 @@ fi
 
 # CREATE USERS
 default_users=(
-    "mike user1@example.com"
-    "enoch user2@example.com"
-    "chichi user3@example.com"
-    "pete user4@example.com"
-    "boss user5@example.com"
+    "user1 user1@example.com"
+    "user2 user2@example.com"
+    "user3 user3@example.com"
+    "user4 user4@example.com"
+    "user5 user5@example.com"
 )
 
 for user in "${default_users[@]}"; do
